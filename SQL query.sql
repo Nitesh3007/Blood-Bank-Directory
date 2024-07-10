@@ -1,75 +1,55 @@
-#1.Introduction to Dataset#
-select *
-from blood_bank.dataset;
+SELECT * FROM bloodbank.db;
 
-#2.No of Blood Banks in India#
-select
-count(*) as No_of_Blood_Banks
-from blood_bank.dataset;
+-- Total blood banks in India
+SELECT COUNT(*) Total_Banks
+FROM bloodbank.db;
 
-#3.State wise No of Blood Banks in India#
-select state,
-count(*) as state_wise_count
-from blood_bank.dataset
-group by State
-order by state_wise_count desc;
+-- State wise blood banks present in India
+SELECT State,
+COUNT(*) state_count from bloodbank.db
+Group BY State
+Order BY state_count desc;
 
-#4.Availability of Apheresis facility#
-select State,
-count(*) as Apheresis_wise_count
-from blood_bank.dataset
-where Apheresis ='YES'
-group by State
-order by Apheresis_wise_count desc;
+-- State with less than 30 units
+SELECT State,
+COUNT(*) low_state_count from bloodbank.db
+Group BY State
+HAVING COUNT(*) < 30
+Order BY low_state_count;
 
-#5.24/7 available blood banks#
-select State,
-count(*) as Service_Time_count
-from blood_bank.dataset
-where Service_Time like '%24%'
-group by State
-order by Service_time_count desc;
+-- Category wise blood banks present in India
+SELECT State,Category,COUNT(*) AS Category_count
+FROM bloodbank.db
+GROUP BY State,Category
+ORDER BY Category_count desc;
 
-#6.category wise blood banks-Government & Charity#
-select State,
-count(*) as Category_count
-from blood_bank.dataset
-where category in ('Government', 'Charity')
-group by State
-order by Category_count desc;
+-- Highest availability of blood component
+SELECT State,COUNT(*) AS Blood_component
+FROM bloodbank.db
+WHERE Blood_Component_Available = 'YES'
+GROUP BY State
+ORDER BY Blood_component desc;
 
-#7.Blood component availability blood banks#
-select State,
-count(blood_component_available) as blood_Comp_Avb_count
-from blood_bank.dataset
-where blood_component_available = "YES"
-group by State
-order by blood_Comp_Avb_count desc;
+-- List of states has Apheresis facility
+SELECT State,COUNT(*) AS Apheresis_service
+FROM bloodbank.db
+WHERE Apheresis = 'YES'
+GROUP BY State
+ORDER BY Apheresis_service desc;
 
-#8.No of licensed blood banks#
-select State,
-count(*) as License_Avb_count
-from blood_bank.dataset
-where license != ''
-group by State
-order by License_Avb_count desc;
+-- No.of blood banks supports 24/7 state wise
+SELECT State,COUNT(*) AS Service_24
+FROM bloodbank.db
+WHERE Service_Time like '%24%'
+GROUP BY State
+ORDER BY Service_24 desc;
 
-#9.Creating case-Fully functional blood banks#
-select Blood_Bank_Name, City, Pincode, Mobile,
-case
-when Blood_Component_Available = "YES" and 
-Apheresis = "YES" and
-Service_Time like '%24%'
-then 'Totally Functional'
-else 'Partially Functional' 
-end as Functionality_Status
-from blood_bank.dataset
-where license != '' and State ='Maharashtra';
-
-#10.States having no of blood banks Less than 30#
-select state,
-count(*) as Less_than_30_blood_banks
-from blood_bank.dataset
-group by state
-having count(*) < 30;
-
+-- Blood banks functionality: Total/Partial Functional
+SELECT Blood_Bank_Name,State,City,Mobile,
+case 
+WHEN Blood_Component_Available = 'YES' and
+Apheresis = 'YES' and Service_Time like '%24%' and License != ''
+then 'Totally functional'
+else 'Partially functional'
+end as Functionality_check
+FROM bloodbank.db
